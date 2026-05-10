@@ -1,16 +1,17 @@
-from transformers import pipeline
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
-try:
-    sentiment_pipeline = pipeline("sentiment-analysis", model="distilbert-base-uncased-finetuned-sst-2-english")
-except Exception as e:
-    print(f"Failed to load sentiment model: {e}")
-    sentiment_pipeline = None
+analyzer = SentimentIntensityAnalyzer()
 
 def analyze_sentiment(text: str) -> str:
-    if not sentiment_pipeline:
-        return "NEUTRAL"
     try:
-        result = sentiment_pipeline(text)[0]
-        return result['label']
+        scores = analyzer.polarity_scores(text)
+        compound = scores['compound']
+        
+        if compound >= 0.05:
+            return "POSITIVE"
+        elif compound <= -0.05:
+            return "NEGATIVE"
+        else:
+            return "NEUTRAL"
     except Exception:
         return "NEUTRAL"
