@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ChatWindow, { Message } from "@/components/ChatWindow";
 import VoiceInput from "@/components/VoiceInput";
 import Visualizer from "@/components/Visualizer";
@@ -14,8 +14,10 @@ export default function Home() {
   
   const { isListening, transcript, startListening, stopListening, speak, setTranscript } = useSpeech();
 
-  if (isListening && status !== "listening") setStatus("listening");
-  if (!isListening && status === "listening") setStatus("idle");
+  useEffect(() => {
+    if (isListening && status !== "listening") setStatus("listening");
+    if (!isListening && status === "listening") setStatus("idle");
+  }, [isListening, status]);
 
   const handleSendMessage = async (text: string) => {
     if (!text.trim()) return;
