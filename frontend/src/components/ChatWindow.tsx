@@ -31,9 +31,9 @@ export default function ChatWindow({ messages }: ChatWindowProps) {
             transition={{ duration: 0.8 }}
             className="text-2xl font-light"
           >
-            I'm here to listen.
+            I&apos;m here to listen.
           </motion.div>
-          <div className="text-sm opacity-60">Speak or type whenever you're ready.</div>
+          <div className="text-sm opacity-60">Speak or type whenever you&apos;re ready.</div>
         </div>
       )}
 
