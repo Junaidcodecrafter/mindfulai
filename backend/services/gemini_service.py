@@ -1,10 +1,8 @@
-import google.generativeai as genai
+from google import genai
 from config import settings
 
-# Initialize Gemini
-genai.configure(api_key=settings.gemini_api_key)
-
-model = genai.GenerativeModel('gemini-1.5-flash')
+# Initialize Gemini client
+client = genai.Client(api_key=settings.gemini_api_key)
 
 SYSTEM_PROMPT = """
 You are a highly empathetic, calming, and warm AI Mental Health Companion. 
@@ -21,19 +19,39 @@ Tone: Soft, soothing, non-judgmental, and deeply empathetic.
 """
 
 def generate_response(history: list, current_message: str, user_sentiment: str) -> str:
-    prompt = f"{SYSTEM_PROMPT}\n\n"
-    prompt += f"Note to AI: The user's current emotional sentiment is detected as: {user_sentiment}.\n"
-    prompt += "Please adjust your tone accordingly.\n\n"
+    # Build conversation history in the new format
+    contents = []
     
-    prompt += "Conversation History:\n"
-    for msg in history[-10:]: # Keep context window manageable
-        role = "User" if msg['role'] == "user" else "You"
-        prompt += f"{role}: {msg['content']}\n"
+    for msg in history[-10:]:  # Keep context window manageable
+        role = "user" if msg['role'] == "user" else "model"
+        contents.append(
+            genai.types.Content(
+                role=role,
+                parts=[genai.types.Part(text=msg['content'])]
+            )
+        )
     
-    prompt += f"\nUser: {current_message}\nYou:"
-    
+    # Add current message with sentiment note
+    current_with_sentiment = (
+        f"{current_message}\n\n"
+        f"[Detected emotional sentiment: {user_sentiment}. Adjust tone accordingly.]"
+    )
+    contents.append(
+        genai.types.Content(
+            role="user",
+            parts=[genai.types.Part(text=current_with_sentiment)]
+        )
+    )
+
     try:
-        response = model.generate_content(prompt)
+        response = client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=contents,
+            config=genai.types.GenerateContentConfig(
+                system_instruction=SYSTEM_PROMPT,
+                temperature=0.7,
+            )
+        )
         return response.text
     except Exception as e:
         print(f"Error calling Gemini API: {e}")

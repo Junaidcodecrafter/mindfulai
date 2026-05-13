@@ -10,4 +10,6 @@ async def chat_endpoint(request: ChatRequest):
         response = await process_chat(request.session_id, request.message)
         return response
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))

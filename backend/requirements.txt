@@ -3,6 +3,6 @@ uvicorn
 motor
 pydantic
 pydantic-settings
-google-generativeai
+google-genai
 vaderSentiment
 python-dotenv
